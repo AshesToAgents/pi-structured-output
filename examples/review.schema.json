@@ -1,0 +1,44 @@
+{
+  "type": "object",
+  "description": "Result of a code review.",
+  "additionalProperties": false,
+  "required": ["verdict", "confidence", "summary", "findings"],
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["approve", "request_changes", "reject"],
+      "description": "request_changes if any major/blocker finding exists; reject only for fundamentally unsound changes."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Confidence in the verdict, 0 to 1."
+    },
+    "summary": {
+      "type": "string",
+      "description": "Two to three sentences covering what the change does and the main risk."
+    },
+    "findings": {
+      "type": "array",
+      "description": "Ordered most severe first. Empty array if there are none.",
+      "items": { "$ref": "#/$defs/finding" }
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "title", "file", "line_start", "explanation"],
+      "properties": {
+        "severity": { "type": "string", "enum": ["blocker", "major", "minor", "nit"] },
+        "title": { "type": "string", "description": "One line." },
+        "file": { "type": "string", "description": "Path relative to the repository root." },
+        "line_start": { "type": "integer", "minimum": 1 },
+        "line_end": { "type": "integer", "minimum": 1, "description": "Omit for single-line findings." },
+        "explanation": { "type": "string", "description": "What is wrong and why it matters." },
+        "suggested_fix": { "type": "string", "description": "Concrete fix, if obvious." }
+      }
+    }
+  }
+}
